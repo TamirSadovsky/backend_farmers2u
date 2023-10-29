@@ -33,7 +33,8 @@ app = Flask(__name__)
 jwt = JWTManager(app)
 
 app.config['SECRET_KEY'] = 'farmers2u'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://db_farmers2u_user:NGrS4Fs2wbLQl67mGMfdnMssTRTeHoxs@dpg-ckvbadmb0mos738hdv9g-a.frankfurt-postgres.render.com/db_farmers2u'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rwvjjwnfkrlgap:68f808f84cec7e681e096313d195d6ee74b5a6a9966835b892a0e65527cdc65b@ec2-35-169-11-108.compute-1.amazonaws.com:5432/da72roj62mfn5d'
  
 SQLALCHEMY_TRACK_MODIFICATIONS = False
