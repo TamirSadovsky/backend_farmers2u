@@ -15,17 +15,44 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Retrieve the JSON string from the environment variable
+#google_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+# Parse the JSON string into a dictionary
+#google_credentials_dict = json.loads(google_credentials_json)
+
+# Create a storage client using the parsed service account info
+#storage_client = storage.Client.from_service_account_info(google_credentials_dict)
+
+#bucket_name = 'farmers2u_images'
+#bucket = storage_client.bucket(bucket_name)
+
+# Path to the local image file you want to upload
+#local_image_path = r'C:\Users\tamir\OneDrive\Desktop\GoogleWorkshop\backend\farmers2u_logo.png'
+
+# Specify the name for the image in your bucket
+image_filename = "farmers2u_logo.png"
+
+# Upload the image to the bucket
+#blob = bucket.blob(image_filename)
+#blob.upload_from_filename(local_image_path)
+
+# Get the URL to the uploaded image
+#uploaded_image_url = f"https://storage.googleapis.com/{bucket_name}/{image_filename}"
+
+#print(f"Image uploaded to {uploaded_image_url}")
+
+# Retrieve the JSON string from the environment variable
 google_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 # Parse the JSON string into a dictionary
 google_credentials_dict = json.loads(google_credentials_json)
 # Create a storage client using the parsed service account info
 storage_client = storage.Client.from_service_account_info(google_credentials_dict)
 
-bucket_name = 'image_storage_farmers2u'
+bucket_name = 'farmers2u_images'
 bucket = storage_client.bucket(bucket_name)
 default_logo_name = "farmers2u_logo.png"
-default_logo = f"https://storage.googleapis.com/{bucket_name}/{default_logo_name}"
 
+default_logo = f"https://storage.cloud.google.com/farmers2u_images/farmers2u_logo.png"
 
 app = Flask(__name__)
 
@@ -33,7 +60,8 @@ app = Flask(__name__)
 jwt = JWTManager(app)
 
 app.config['SECRET_KEY'] = 'farmers2u'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tamir:CWNk76u7bXQwBezcvkKCq2nFtJkYBptH@dpg-cl1a6mas1bgc73b4jrn0-a.oregon-postgres.render.com/farmers2u_db'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rwvjjwnfkrlgap:68f808f84cec7e681e096313d195d6ee74b5a6a9966835b892a0e65527cdc65b@ec2-35-169-11-108.compute-1.amazonaws.com:5432/da72roj62mfn5d'
  
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -85,7 +113,9 @@ def allowed_file(filename):
 
 
 def delete_object_by_url(url):
-    if default_logo in url:
+    if default_logo == url:
+        return
+    if default_logo_name in url:
         return
     # Parse the URL to extract the object name
     object_name = url.split('/')[-1]
@@ -94,7 +124,7 @@ def delete_object_by_url(url):
     client = storage.Client.from_service_account_info(google_credentials_dict)
 
     # Specify the bucket name
-    bucket_name = 'image_storage_farmers2u'
+    bucket_name = 'farmers2u_images'
     # Get the bucket
     bucket = client.bucket(bucket_name)
 
@@ -221,7 +251,7 @@ def signup():
             blob.upload_from_file(files[i])
 
             # Generate public URL for the uploaded image
-            image_url = f"https://storage.googleapis.com/{bucket_name}/{image_filename}"
+            image_url = f"https://storage.cloud.google.com/{bucket_name}/{image_filename}"
 
             if labels[i] == "1":
                 logo_image.append(image_url)
@@ -517,7 +547,7 @@ def update_my_settings(getemail):
             blob.upload_from_file(files[i])
 
             # Generate public URL for the uploaded image
-            image_url = f"https://storage.googleapis.com/{bucket_name}/{image_filename}"
+            image_url = f"https://storage.cloud.google.com/{bucket_name}/{image_filename}"
             if labels[i] == "1":
                 user.logo_picture = image_url
                 for post in user_posts:

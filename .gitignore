@@ -1,0 +1,6 @@
+venv/
+instance/
+__pycache__/
+old/
+backend_farmers2u/
+keyfile.json
