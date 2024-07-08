@@ -124,7 +124,7 @@ def delete_object_by_url(url):
     client = storage.Client.from_service_account_info(google_credentials_dict)
 
     # Specify the bucket name
-    bucket_name = 'farmers2u_images'
+    bucket_name = 'db_storage_farmers2u'
     # Get the bucket
     bucket = client.bucket(bucket_name)
 
