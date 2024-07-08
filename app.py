@@ -58,10 +58,10 @@ app = Flask(__name__)
 
 #app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 jwt = JWTManager(app)
-
 app.config['SECRET_KEY'] = 'farmers2u'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tamir:CWNk76u7bXQwBezcvkKCq2nFtJkYBptH@dpg-cl1a6mas1bgc73b4jrn0-a.oregon-postgres.render.com/farmers2u_db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tamir:CWNk76u7bXQwBezcvkKCq2nFtJkYBptH@dpg-cl1a6mas1bgc73b4jrn0-a.oregon-postgres.render.com/farmers2u_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://db_farmers2u_xehu_user:ESxXbdItoNNc3H5w4V1YPhRWMshYFx3O@dpg-cq5t7ng8fa8c738dgplg-a.frankfurt-postgres.render.com/db_farmers2u_xehu'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rwvjjwnfkrlgap:68f808f84cec7e681e096313d195d6ee74b5a6a9966835b892a0e65527cdc65b@ec2-35-169-11-108.compute-1.amazonaws.com:5432/da72roj62mfn5d'
  
 SQLALCHEMY_TRACK_MODIFICATIONS = False
