@@ -48,7 +48,7 @@ google_credentials_dict = json.loads(google_credentials_json)
 # Create a storage client using the parsed service account info
 storage_client = storage.Client.from_service_account_info(google_credentials_dict)
 
-bucket_name = 'farmers2u_images'
+bucket_name = 'db_storage_farmers2u'
 bucket = storage_client.bucket(bucket_name)
 default_logo_name = "farmers2u_logo.png"
 
