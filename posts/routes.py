@@ -48,7 +48,7 @@ google_credentials_dict = json.loads(google_credentials_json)
 storage_client = storage.Client.from_service_account_info(google_credentials_dict)
 
 #storage_client = storage.Client.from_service_account_json('C:\\Users\\tamir\\OneDrive\\Desktop\\GoogleWorkshop\\frontend\\keyfile.json')
-bucket_name = 'image_storage_farmers2u'
+bucket_name = 'db_storage_farmers2u'
 bucket = storage_client.bucket(bucket_name)
 
 @posts_blueprint.route('/api/posts', methods=['POST'])
