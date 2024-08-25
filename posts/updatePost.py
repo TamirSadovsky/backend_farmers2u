@@ -18,14 +18,12 @@ load_dotenv()
 
 # Retrieve the JSON string from the environment variable
 google_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-
 # Parse the JSON string into a dictionary
 google_credentials_dict = json.loads(google_credentials_json)
-
 # Create a storage client using the parsed service account info
 storage_client = storage.Client.from_service_account_info(google_credentials_dict)
 
-bucket_name = 'image_storage_farmers2u'
+bucket_name = 'db_storage_farmers2u'
 bucket = storage_client.bucket(bucket_name)
 
 def generate_unique_filename(filename):
@@ -93,7 +91,7 @@ def update_post():
         image_url = f"https://storage.googleapis.com/{bucket_name}/{post_image_filename}"
 
 
-    time_range = f"{data['endTime']}-{data['startTime']}"
+    time_range = f"{data['startTime']}-{data['endTime']}"
 
     product_types = data.get('products')
     if product_types:

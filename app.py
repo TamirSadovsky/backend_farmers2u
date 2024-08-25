@@ -48,21 +48,20 @@ google_credentials_dict = json.loads(google_credentials_json)
 # Create a storage client using the parsed service account info
 storage_client = storage.Client.from_service_account_info(google_credentials_dict)
 
-bucket_name = 'farmers2u_images'
+bucket_name = 'db_storage_farmers2u'
 bucket = storage_client.bucket(bucket_name)
 default_logo_name = "farmers2u_logo.png"
 
-default_logo = f"https://storage.cloud.google.com/farmers2u_images/farmers2u_logo.png"
+default_logo = f"https://storage.cloud.google.com/db_storage_farmers2u/farmers2u_logo.png"
 
 app = Flask(__name__)
 
-#app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=10)
 jwt = JWTManager(app)
 
 app.config['SECRET_KEY'] = 'farmers2u'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tamir:CWNk76u7bXQwBezcvkKCq2nFtJkYBptH@dpg-cl1a6mas1bgc73b4jrn0-a.oregon-postgres.render.com/farmers2u_db'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rwvjjwnfkrlgap:68f808f84cec7e681e096313d195d6ee74b5a6a9966835b892a0e65527cdc65b@ec2-35-169-11-108.compute-1.amazonaws.com:5432/da72roj62mfn5d'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tamir:CWNk76u7bXQwBezcvkKCq2nFtJkYBptH@dpg-cl1a6mas1bgc73b4jrn0-a.oregon-postgres.render.com/farmers2u_db'
  
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = True
@@ -124,7 +123,7 @@ def delete_object_by_url(url):
     client = storage.Client.from_service_account_info(google_credentials_dict)
 
     # Specify the bucket name
-    bucket_name = 'farmers2u_images'
+    bucket_name = 'db_storage_farmers2u'
     # Get the bucket
     bucket = client.bucket(bucket_name)
 
@@ -480,31 +479,55 @@ def update_my_settings(getemail):
     user.types_of_products = data.get('types_of_products')
     labels = request.form.getlist('labels[]')
     print("labels",labels)
+
     if labels:
-        for label in labels:
+        for label_plus_images in labels:
+            print("label_plus_images", label_plus_images)
+            parts = label_plus_images.split('@')
+            label, images_urls = parts[0], parts[1:]
             if label == '4':
-                # Delete logo images from the cloud
+                # Delete logo image from the cloud
                 if user.logo_picture:
                     delete_object_by_url(user.logo_picture)
+                    #labels.remove(label_plus_images)
                     user.logo_picture = default_logo  # Clear the list of URLs after deletion
                     for post in user_posts:
                         post.profilePicture = default_logo
             elif label == '5':
                 if user.products_pictures:
-                    # Delete product images from the cloud
+                    #print("In Beginning, user.products_pictures", user.products_pictures)
+                    # Delete specific images from the cloud as user asked
                     urls = user.products_pictures.split(",")
-                    for product_image_url in urls:
-                        delete_object_by_url(product_image_url)
-                    user.products_pictures = ""  # Clear the list of URLs after deletion
+                    #labels.remove(label_plus_images)
+                    print("urls:", urls)
+                    print("images_urls", images_urls)
+                    for image_url in images_urls:
+                        print("image_url", image_url)
+                        if image_url in urls:
+                            delete_object_by_url(image_url)
+                            urls.remove(image_url)
+                    user.products_pictures = ','.join(urls)  # back to list
+                    #print("user.products_pictures", user.products_pictures)
             elif label == '6':
                 if user.farm_pictures:
-                    # Delete farm images from the cloud
+                    # Delete specific images from the cloud as user asked
                     urls = user.farm_pictures.split(",")
-                    for farm_image_url in urls:
-                        delete_object_by_url(farm_image_url)
-                    user.farm_pictures = ""  # Clear the list of URLs after deletion
-    elements_to_remove = ['4','5','6']
-    labels = [item for item in labels if item not in elements_to_remove]
+                    #labels.remove(label_plus_images)
+                    for image_url in images_urls:
+                        if image_url in urls:
+                            delete_object_by_url(image_url)
+                            urls.remove(image_url)
+                    user.farm_pictures = ','.join(urls)  # back to list
+            
+        # after finish deleting, clean the labels list:
+        for label_plus_images in labels:
+            parts = label_plus_images.split('@')
+            label, images_urls = parts[0], parts[1:]
+            if label == '4' or label == '5' or label == '6':
+                labels.remove(label_plus_images)
+
+
+        # First, check if there something to delete
     print("labelssss",labels)
     if 'files[]' not in request.files:
         None # do nothing
@@ -513,56 +536,59 @@ def update_my_settings(getemail):
         farm_images = []
         files = request.files.getlist('files[]')
         print("files", files)
-        
-        # Delete existing images from the cloud based on labels
-        for label in labels:
-            if label == '1':
-                if user.logo_picture:
-                    # Delete logo image from the cloud
-                    delete_object_by_url(user.logo_picture)
-                    user.logo_picture = default_logo
-                    for post in user_posts:
-                        post.profilePicture = default_logo
-            elif label == '2':
-                if user.products_pictures:
-                    # Delete product images from the cloud
-                    urls = user.products_pictures.split(",")
-                    print("urls", urls)
-                    for product_image_url in urls:
-                        delete_object_by_url(product_image_url)
-                    user.products_pictures = []  # Clear the list of URLs after deletion
-
-            elif label == '3':
-                if user.farm_pictures:
-                    # Delete farm images from the cloud
-                    urls = user.farm_pictures.split(",")
-                    for farm_image_url in urls:
-                        delete_object_by_url(farm_image_url)
-                    user.farm_pictures = []  # Clear the list of URLs after deletion
             
         for i in range(len(files)):
-            print("files:", files[i])
+            parts = labels[i].split('@')
+            if parts[0] != '1':
+                label = parts[0]
+                try:
+                    # Attempt to parse parts[1:][0] as an integer
+                    indexToInsert = int(parts[1:][0])
+                except ValueError:
+                    # If parsing fails, set indexToInsert to 'null'
+                    indexToInsert = 'null'
+                
+                print("LABEL", label)
+                print("index", indexToInsert)
+            else:
+                label = parts[0]
+                indexToInsert = ""
             image_filename = generate_unique_filename(files[i].filename)
             blob = bucket.blob(image_filename)
             blob.upload_from_file(files[i])
 
             # Generate public URL for the uploaded image
             image_url = f"https://storage.cloud.google.com/{bucket_name}/{image_filename}"
-            if labels[i] == "1":
+            if label == "1":
                 user.logo_picture = image_url
+                print("logo_picture", user.logo_picture)
                 for post in user_posts:
                     post.profilePicture = image_url
-            elif labels[i] == "2":
-                products_images.append(image_url)
-            elif labels[i] == "3":
-                print("farm_images", farm_images)
-                farm_images.append(image_url)
+            elif label == "2":
+                listOfProductsImages = user.products_pictures.split(',')
+                listOfProductsImages.insert(indexToInsert, image_url)
+                user.products_pictures = ','.join(listOfProductsImages)
+                #print("products_images", user.products_images)
+            elif label == "3":
+                print("FARM IMAGES",farm_images)
+                listOfFarmImages = user.farm_pictures.split(',')
+                listOfFarmImages.insert(indexToInsert, image_url)
+                user.farm_pictures = ','.join(listOfFarmImages)
+                print("farm_images", user.farm_pictures)
         
+        print("products_images", products_images)
+        print("products_images.join()", ','.join(products_images))
+        print("products_images", products_images)
+        print("products_images", products_images)
+        #user.products_pictures = ','.join(products_images)
+        #user.farm_pictures = ','.join(farm_images)
         # Update products and farm images lists in the database
+        """
         if products_images:
             user.products_pictures = ','.join(products_images)
         if farm_images:
             user.farm_pictures = ','.join(farm_images)
+        """
 
     db.session.commit()
 

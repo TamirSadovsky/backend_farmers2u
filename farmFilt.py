@@ -56,7 +56,7 @@ def filterTheFarmers():
         
     for farmer in farmers:
         if address != '':
-            gmaps = googlemaps.Client(key='AIzaSyAW-HDgK8fdEceybLwvRN_7wYgI_TtHmQ0')
+            gmaps = googlemaps.Client(key='AIzaSyDmtNnIY_fl40eDIxOANZB-KyBuOrTTYYI')
             result = gmaps.distance_matrix(address, farmer.address)["rows"][0]["elements"][0]["distance"]["value"]
             result = result / 1000
         if cond_categories(farmer.types_of_products.split(',')):
