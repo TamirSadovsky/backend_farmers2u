@@ -60,7 +60,7 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=10)
 jwt = JWTManager(app)
 app.config['SECRET_KEY'] = 'farmers2u'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://avnadmin:AVNS_gcUGxiDWFRgtz-Fd9Hw@db-farmers2u-tamirsadovsky-570f.f.aivencloud.com:19517/defaultdb?sslmode=require'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://rwvjjwnfkrlgap:68f808f84cec7e681e096313d195d6ee74b5a6a9966835b892a0e65527cdc65b@ec2-35-169-11-108.compute-1.amazonaws.com:5432/da72roj62mfn5d'
  
 SQLALCHEMY_TRACK_MODIFICATIONS = False
